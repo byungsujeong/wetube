@@ -8,13 +8,14 @@ import passport from "passport";
 import mongoose from "mongoose";
 import session from "express-session";
 import path from "path";
+import flash from "express-flash";
 import MongoStore from "connect-mongo";
+import { localsMiddleware } from "./middlewares";
+import routes from "./routes";
 import userRouter from "./routers/userRouter";
 import videoRouter from "./routers/videoRouter";
 import globalRouter from "./routers/globalRouter";
 import apiRouter from "./routers/apiRouter";
-import routes from "./routes";
-import { localsMiddleware } from "./middlewares";
 
 import "./passport";
 
@@ -24,7 +25,7 @@ const CookieStore = MongoStore(session);
 
 app.use(helmet({contentSecurityPolicy: false}));
 app.set("view engine", "pug");
-app.search("views", path.join(__dirname, "views"));
+app.set("views", path.join(__dirname, "views"));
 app.use("/static", express.static(path.join(__dirname, "static")));
 //app.use("/uploads", express.static("uploads"));
 //app.use("/static", express.static("static"));
@@ -38,6 +39,9 @@ app.use(session({
     saveUninitialized: false,
     store: new CookieStore({ mongooseConnection: mongoose.connection })
 }));
+
+app.use(flash());
+
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(localsMiddleware);
